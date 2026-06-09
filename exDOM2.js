@@ -13,12 +13,13 @@ const verificarBD = () => {
     }
 };
 
-const renderItem = (texto) => {    
+const renderItem = (texto, id) => {
     const item = document.createElement('li');
     item.innerText = texto;
+
     const btRemover = document.createElement('input');
     btRemover.type = 'button';
-    btRemover.value = "Remover";
+    btRemover.value = "❌";
     btRemover.onclick = (evento) => {
         const pai = evento.target.parentElement;
         lista.removeChild(pai);
@@ -27,23 +28,56 @@ const renderItem = (texto) => {
         localStorage.setItem('item', JSON.stringify(tarefas))
     }
     
+    const btEditar = document.createElement('input');
+    btEditar.type = 'button';
+    btEditar.value = "✏️";
+    btEditar.onclick = editItem;
+    btEditar.dataset.id = id;
+
     item.appendChild(btRemover);
+    item.appendChild(btEditar);
     lista.appendChild(item);
+}
+
+const editItem = (evento) => {
+    const alvo = evento.target;
+
+    const inputEditar = document.createElement('input');
+    inputEditar.type = 'text';
+    inputEditar.classList.add('input-editar');
+    inputEditar.placeholder = alvo.parentElement.textContent;
+    inputEditar.dataset.id = alvo.dataset.id;
+
+    const btconfirmar = document.createElement('input');
+    btconfirmar.type = 'button';
+    btconfirmar.value = '✔️';
+    btconfirmar.onclick = confirmarEdicao;
+    btconfirmar.dataset.id = alvo.dataset.id;
+
+    const id = alvo.dataset.id;
+    alvo.parentElement.innerHTML = '';
+    const todosLi = document.querySelectorAll('li');
+    todosLi[id].appendChild(inputEditar);
+    todosLi[id].appendChild(btconfirmar);
+}
+
+const confirmarEdicao = (evento) => {
+    const id = evento.target.dataset.id;
 }
 
 const addItem = () => {
     const texto = inputTexto.value;
     
-    renderItem(texto)
+    tarefas.push(texto);
+    renderItem(texto, tarefas.length)
     
     inputTexto.value = '';
 
-    tarefas.push(texto);
     localStorage.setItem('item', JSON.stringify(tarefas));
 }
 
 const tarefas = verificarBD();
-tarefas.forEach((item) => renderItem(item));
+tarefas.forEach((item, index) => renderItem(item, index));
 
 btAdd.addEventListener('click', addItem);
 inputTexto.addEventListener('keyup', (evento) => {
